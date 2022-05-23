@@ -1,0 +1,160 @@
+﻿<Window x:Class="PhotosArchive.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        DataContext="{Binding Source={StaticResource Locator}, Path=MainViewModelPrimaire}"
+        mc:Ignorable="d"
+        Title="{Binding Copyright}" Height="550" Width="900">
+
+    <Window.Resources>
+        <!-- Style Bordure -->
+        <Style TargetType="{x:Type Border}" x:Key="styleBordure">
+            <Setter Property="BorderBrush" Value="Black"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="CornerRadius" Value="5"/>
+        </Style>
+
+        <!-- Commande des boutons avec passage de paramètres pour identification de l'appel-->
+        <Style TargetType="{x:Type Button}" x:Key="Commande" BasedOn="{StaticResource btnStyle}">
+            <Setter Property="Command" Value="{Binding ButtonCommand}"/>
+            <Setter Property="CommandParameter" Value="{Binding Path=Name, RelativeSource={RelativeSource Self}}"/>
+        </Style>
+
+        <!-- Style Image -->
+        <Style x:Key="afficheImage" TargetType="Image">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding ElementName=chkImg, Path=IsChecked}" Value="True">
+                    <Setter Property="Source" Value="{Binding ElementName=txbFichierEnCours,Path=Text}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <DockPanel>
+
+        <!-- Status Bar-->
+        <!--<StatusBar DockPanel.Dock="Bottom" Visibility="{Binding IndexEnCours,Converter={StaticResource visible}}">-->
+            <StatusBar DockPanel.Dock="Bottom" >
+
+                <StatusBar.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="130" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="200" />
+                        </Grid.ColumnDefinitions>
+                    </Grid>
+                </ItemsPanelTemplate>
+            </StatusBar.ItemsPanel>
+
+            <!-- Nombre de copie -->
+            <StatusBarItem>
+                <Grid Margin="2,0,0,0">
+                    <StackPanel Orientation="Horizontal" >
+                        <TextBlock Text="Copie de : " FontWeight="DemiBold"/>
+                        <TextBlock Grid.Column="0" Name="txbNb" FontWeight="DemiBold" HorizontalAlignment="Center" Foreground="Blue" Text="{Binding IndexEnCours}" />
+                    </StackPanel>
+                </Grid>
+            </StatusBarItem>
+            <Separator Grid.Column="1" />
+
+            <!-- Fichier en cours -->
+            <StatusBarItem Grid.Column="2" >
+                <TextBlock Name="txbFichierEnCours" FontWeight="DemiBold"  Foreground="Blue" Text="{Binding F.NomComplet}" />
+            </StatusBarItem>
+            <Separator Grid.Column="3" />
+
+            <!-- ProgressBar-->
+            <StatusBarItem Grid.Column="4">
+                <Grid>
+                    <ProgressBar Minimum="0" Maximum="100" Width="190" Height="16" HorizontalAlignment="Center" Value="{Binding ElementName=txbps,Path=Text}"/>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding Pourcent}" Margin="90,0,3,0"  FontWeight="Bold" FontSize="14" x:Name="txbps" />
+                        <TextBlock Text="%" FontSize="14" FontWeight="Bold" />
+                    </StackPanel>
+                </Grid>
+            </StatusBarItem>
+        </StatusBar>
+
+        <Grid Margin="10" >
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="60"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Titre -->
+            <Border Grid.ColumnSpan="2" Style="{StaticResource styleBordure}">
+                <Grid Grid.Row="0" Grid.ColumnSpan="3" Margin="30,10" >
+                    <TextBlock Text="{Binding Titre}" FontSize="30" HorizontalAlignment="Center"  VerticalAlignment="Center"
+                           FontWeight="Bold" Foreground="Blue"  />
+                </Grid>
+            </Border>
+
+            <!-- Source / Destination -->
+            <StackPanel Grid.Column="0" Grid.Row="1" Margin="10,10,0,0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Source -->
+                    <Border Grid.Row="0" Margin="0,20" Style="{StaticResource styleBordure}">
+                        <StackPanel Grid.Row="0">
+                            <StackPanel  Orientation="Horizontal">
+                                <Button Name="btnSource" Content="Source" Style="{StaticResource Commande}" Margin="10" />
+                                <TextBlock x:Name="txbSource" Margin="10,10" FontWeight="DemiBold" FontSize="13" Text="{Binding Source}"/>
+                            </StackPanel>
+                            <!-- Destination -->
+                            <StackPanel Orientation="Horizontal" Margin="0,20" >
+                                <Button Name="btnDestination" Content="Destination" Style="{StaticResource Commande}" Margin="10"/>
+                                <TextBlock Name="txbDestination" FontWeight="DemiBold" Margin="10,10" Height="20" FontSize="13" Text="{Binding Destination}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Copier -->
+                    <StackPanel Grid.Row="2" Name="panelTraitement" >
+                        <Button Name="btnCopier" Content="Lancer l'archivage" Style="{StaticResource btnStyle }" Width="200" 
+                        Command="{Binding CmdCopier}" />
+                        <CheckBox IsChecked="{Binding ChkImage}" Name="chkImg" Content="Afficher les images (ralentit la progression)" Margin="10" Padding="10,0"/>
+                    </StackPanel>
+
+                </Grid>
+            </StackPanel>
+
+            <!-- Image -->
+            <StackPanel Grid.Column="1" Grid.Row="1">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="300"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Margin="10,30,0,0" Style="{StaticResource styleBordure}">
+                        <Grid Grid.Row="0">
+                            <Image Name="imgSource" HorizontalAlignment="Center" VerticalAlignment="Center"
+                       Margin="5" Style="{StaticResource afficheImage}" />
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <!-- Bouton annuler - Le convertisseur est le booléen par défaut est dans le App.xaml -->
+                <Grid Grid.Row="1" Margin="0,20">
+                    <Button Name="btnAnnuler" Content="Annuler" Style="{StaticResource Commande}" 
+                       Visibility="{Binding IndexEnCours,Converter={StaticResource visible}}"/>
+                </Grid>
+            </StackPanel>
+
+        </Grid>
+    </DockPanel>
+</Window>
