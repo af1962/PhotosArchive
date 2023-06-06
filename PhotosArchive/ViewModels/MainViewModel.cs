@@ -208,27 +208,23 @@ namespace PhotosArchive.ViewModels
         {
             int nbFichiers = fichiers.Length;
             string date;
-            for (int i = 0; i < nbFichiers; i++)
+
+            Parallel.For(0, nbFichiers, i =>
             {
-                if (worker.CancellationPending)
-                {
-                    e.Cancel = true;
-                }
-                else
-                {
-                    // formatage de la date
-                    date = pd.DatePhotos(fichiers[i].FullName, fichiers[i].LastWriteTime.ToShortDateString()).Substring(6, 4);
+                date = pd.DatePhotos(fichiers[i].FullName, fichiers[i].LastWriteTime.ToShortDateString()).Substring(6, 4);
 
-                    // Création d'une instance de fichier
-                    F = new Fichier(fichiers[i].Name, date, fichiers[i].FullName, Destination);
+                // Création d'une instance de fichier
+                F = new Fichier(fichiers[i].Name, date, fichiers[i].FullName, Destination);
 
-                    // Copie de fichiers                     
-                    copie.Copier(F);
+                // Copie de fichiers                     
+                copie.Copier(F);
 
-                    // Progression             
-                    worker.ReportProgress((i + 1) * 100 / nbFichiers, i + 1);
-                }
-            }
+                // Progression
+                //worker.ReportProgress((i + 1) * 100 / nbFichiers, i + 1);
+
+            });              
+
+
         }
 
         /// <summary>
